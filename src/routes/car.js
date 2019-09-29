@@ -1,10 +1,11 @@
-const carModel = require("../models/car")
+const carModel = require("../models/car").model
 
 module.exports = (router) => {
     // Create car end-point 
     router.post("/car", async (request, response) => {
         try {
-            let result = await carModel.find().exec();
+            const newCar = new carModel(request.body);
+            let result = await newCar.save();
             response.send(result)
         } catch (error) {
             response.status(500).send(error)
@@ -13,7 +14,7 @@ module.exports = (router) => {
     });
 
     // Get cars list end-point 
-    router.get("/people", async (request, response) => {
+    router.get("/cars", async (request, response) => {
         try {
             let result = await carModel.find().exec();
             response.send(result);
@@ -21,6 +22,17 @@ module.exports = (router) => {
             response.status(500).send(error)
 
         }
+    });
+
+    // Get cars list paginated end-point 
+    router.get("/cars/:pagenum", (request, response) => {
+        carModel.paginate({}, { page: request.params.pagenum, limit: 3 })
+            .then((result) => {
+                response.send(result);
+            })
+            .error((error) => {
+                response.status(500).send(error)
+            })
     });
 
     // Get car end-point
@@ -36,10 +48,10 @@ module.exports = (router) => {
     // Update car end-point
     router.put("/car/:id", async (request, response) => {
         try {
-            let car = await carModel.findById(request.params.id).exec();
-            response.set(request.car);
-            let result = await car.save();
-            response.send(result);
+            let oldCar = await carModel.findById(request.params.id).exec();
+            oldCar.name.last = oldCar.name.last.toUpperCase();
+            let updatedCar = await oldCar.save();
+            response.send(updatedCar);
         } catch (error) {
             response.status(500).send(error)
         }

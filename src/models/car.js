@@ -1,4 +1,5 @@
 const mongoose = require("mongoose")
+const paginate = require("mongoose-paginate")
 
 // Car schema
 const carSchema = new mongoose.Schema({
@@ -13,5 +14,12 @@ const carSchema = new mongoose.Schema({
     }
 )
 
+// Plugin to paginate persons list.
+carSchema.plugin(paginate);
+
 // Car model 
-module.exports = mongoose.model("car", carSchema)   
+const carModel = mongoose.model("car", carSchema)  
+
+// Car Schema & Model export 
+module.exports = {schema: carSchema, model: carModel}
+ 
